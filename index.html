@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
         body {           
-            background: url(images/bg.jpg) no-repeat;
+            background: url(images/bg.jpg);
             background-size: cover;
             height: 100vh;
         }
@@ -26,15 +26,15 @@
 
 <body>
     <div class="container">
-        <form class="col-md-6 m-auto py-5">
+        <form id="searchBtn" class="col-md-6 m-auto py-5">
             <div class="input-group mb-3">
-                <input id="location" type="text" class="form-control" placeholder="Enter a location for Weather ...">
+                <input id="location" type="text" autofocus="autofocus" class="form-control" placeholder="Enter a location for Weather ...">
                 <div class="input-group-append">
-                    <button id="searchBtn" type="button" class="btn btn-danger">Search</button>
+                    <button type="submit" class="btn btn-danger">Search</button>
                 </div>
             </div>
         </form>
-        <div class="weather-status text-white text-center">
+        <div id="mainBody" class="weather-status text-white text-center">
             <img id="iconSrc" alt="">
             <h1 id="cityName">Welcome To The World's Simplest Weather App</h1>
             <h3><span id = "temp"></span><span id ="celcius">&deg;C</span></h3>
@@ -46,17 +46,21 @@
     <script>
         const setInnerText = (id, text) =>{
             document.getElementById(id).innerText = text;
-        }        
-        document.getElementById("searchBtn").addEventListener("click", function(){                
+        }              
+        document.getElementById("searchBtn").addEventListener("submit", submitLocation); 
+        function submitLocation(e){
+                e.preventDefault();    
                 const cityName = document.getElementById('location').value;
+                // console.log(cityName);
                 const feelsLike = "Feels Like:";
                 const humidity = "Humidity:";
                 const percentageSign = "%";
-                const celciusIcon = document.getElementById("celcius").innerText;                
+                const celciusIcon = document.getElementById("celcius").innerText;
+                // console.log(celciusIcon);   
                 fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName},{stateCode},{countryCode}&units=metric&appid=f38660f3bf68f391fb7c359989279ec9`)
                 .then(res => res.json())
                 .then(data => {
-                console.log(data);
+                // console.log(data);
                 setInnerText("cityName", data.name);
                 setInnerText("temp", data.main.temp + celciusIcon);
                 setInnerText("feelsLike", feelsLike + " " + data.main.feels_like + celciusIcon);
@@ -73,10 +77,11 @@
                 // document.getElementById('skyStatus').innerText = data.weather[0].description;                               
                 
         })
-        .catch(error => {
-                    alert("City Not Found/Correct Your Spelling");
+        .catch(error => {            
+                    // alert("City Not Found/Correct Your Spelling");
+                    document.getElementById("mainBody").innerHTML = `<h1 style = "color: red;"><strong>City Not Found/Correct Your Spelling...</strong></h1>`;
                 })
-        })        
+        }        
     </script>
 </body>      
 </html>
