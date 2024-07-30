@@ -11,36 +11,66 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
         body {           
-            background: url(images/bg.jpg);
+            background: url(images/bg6.jpg);
             background-size: cover;
-            height: 100vh;
         }
         #celcius{
             display: none;
         }
         #skyStatus{
             text-transform: capitalize;
-        }       
+        }
+        #errorCode{
+            display: none;
+            color: red;            
+        } 
+        #welcomeMessage{
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgb(119, 117, 117);
+        }                    
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div id="welcomeMessage" class="p-2 text-center text-white bg-success">
+            <h1>Welcome To The World's Simplest Weather App</h1>
+        </div>
+        </div>
         <form id="searchBtn" class="col-md-6 m-auto py-5">
             <div class="input-group mb-3">
-                <input id="location" type="text" autofocus="autofocus" class="form-control" placeholder="Enter a location for Weather ...">
+                <input id="location" type="text" class="form-control" placeholder="Enter a location for Weather ...">
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-danger">Search</button>
                 </div>
-            </div>
+            </div>            
         </form>
-        <div id="mainBody" class="weather-status text-white text-center">
-            <img id="iconSrc" alt="">
-            <h1 id="cityName">Welcome To The World's Simplest Weather App</h1>
-            <h3><span id = "temp"></span><span id ="celcius">&deg;C</span></h3>
-            <h3 id="feelsLike"></h3>
-            <h3 id="humidity"></h3>
-            <h1 id="skyStatus" class="lead"></h1>
+        <div class="weather-status text-white text-center">
+            <div id="errorCode">                
+                <ul>
+                    <li class="list-group-item-danger">
+                        <h1><b>Connection Interrupted! Possible Reasons:</b></h1>
+                    </li>
+                    <li class="list-group-item">
+                        <h3>City Not Found in The Server.</h3>
+                    </li>
+                    <li class="list-group-item">
+                        <h3>Correct Your Spelling.</h3>
+                    </li>
+                    <li class="list-group-item">
+                        <h3>Check Your Internet Connection.</h3>
+                    </li>
+                </ul>
+            </div>            
+            <div id="allData">
+                <img id="iconSrc" alt="">
+                <h1 id="cityName"></h1>
+                <h3><span id = "temp"></span><span id ="celcius">&deg;C</span></h3>
+                <h3 id="feelsLike"></h3>
+                <h3 id="humidity"></h3>
+                <h1 id="skyStatus" class="lead"></h1>
+            </div>            
         </div>
     </div>
     <script>
@@ -48,40 +78,36 @@
             document.getElementById(id).innerText = text;
         }              
         document.getElementById("searchBtn").addEventListener("submit", submitLocation); 
-        function submitLocation(e){
-                e.preventDefault();    
-                const cityName = document.getElementById('location').value;
-                // console.log(cityName);
-                const feelsLike = "Feels Like:";
-                const humidity = "Humidity:";
-                const percentageSign = "%";
-                const celciusIcon = document.getElementById("celcius").innerText;
-                // console.log(celciusIcon);   
-                fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName},{stateCode},{countryCode}&units=metric&appid=f38660f3bf68f391fb7c359989279ec9`)
+        function submitLocation(e){                      
+            fetchIssues();
+            e.preventDefault();
+        }
+        const fetchIssues = (event) => {
+            const cityName = document.getElementById('location').value;            
+            // console.log(cityName);
+            const feelsLike = "Feels Like:";
+            const humidity = "Humidity:";
+            const percentageSign = "%";
+            const celciusIcon = document.getElementById('celcius').innerText;
+            // fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName},{stateCode},{countryCode}&units=metric&appid=f38660f3bf68f391fb7c359989279ec9`)
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=f38660f3bf68f391fb7c359989279ec9&units=metric`)
                 .then(res => res.json())
-                .then(data => {
-                // console.log(data);
-                setInnerText("cityName", data.name);
-                setInnerText("temp", data.main.temp + celciusIcon);
-                setInnerText("feelsLike", feelsLike + " " + data.main.feels_like + celciusIcon);
-                setInnerText("humidity", humidity + " " + data.main.humidity +  percentageSign);
-                setInnerText("skyStatus", data.weather[0].description);
-                document.getElementById("iconSrc").src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-
-                // document.getElementById("temp").innerText = data.main.temp + celciusIcon;
-                // document.getElementById("feelsLike").innerText = feelsLike + " " + data.main.feels_like + celciusIcon;
-                // document.getElementById("humidity").innerText = humidity + " " + data.main.humidity +  percentageSign;              
-                // document.getElementById("cityName").innerText = data.name;
-                // const iconId = data.weather[0].icon;
-                // document.getElementById("iconSrc").src = `https://openweathermap.org/img/wn/${iconId}@2x.png`;
-                // document.getElementById('skyStatus').innerText = data.weather[0].description;                               
-                
-        })
-        .catch(error => {            
-                    // alert("City Not Found/Correct Your Spelling");
-                    document.getElementById("mainBody").innerHTML = `<h1 style = "color: red;"><strong>City Not Found/Correct Your Spelling...</strong></h1>`;
+                .then(data => {                    
+                    document.getElementById("errorCode").style.display = "none";
+                    // document.getElementById("welcomeMessage").style.display = "none";       
+                    document.getElementById("allData").style.display = "block";
+                    setInnerText("cityName", data.name);
+                    setInnerText("temp", data.main.temp + celciusIcon);
+                    setInnerText("feelsLike", feelsLike + " " + data.main.feels_like + celciusIcon);
+                    setInnerText("humidity", humidity + " " + data.main.humidity +  percentageSign);
+                    setInnerText("skyStatus", data.weather[0].description);
+                    document.getElementById("iconSrc").src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;            
                 })
-        }        
+            .catch(error => {                    
+                    document.getElementById("allData").style.display = "none";
+                    document.getElementById("errorCode").style.display = "block";                
+                })            
+        }                                
     </script>
 </body>      
 </html>
